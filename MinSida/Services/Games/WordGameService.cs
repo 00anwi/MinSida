@@ -89,7 +89,8 @@ namespace MinSida.Services.Games
             var randomNumber = Random.Next(1, 100);
             if (_words.Count < 10 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
             {
-                var newWord = GenerateNewWord(GetRandomWord().ToLower());
+                var word = GetRandomWord().ToLower();
+                var newWord = GenerateNewWord(word.Substring(0, word.IndexOf(' ')).Trim());
 
                 if (!_words.Where(x => x.Y < 20 && x.X > newWord.X - 50 && x.X < newWord.X + 50).Any())
                 {
