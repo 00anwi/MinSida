@@ -89,7 +89,7 @@ namespace MinSida.Services.Games
             var randomNumber = Random.Next(1, 100);
             if (_words.Count < 10 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
             {
-                var newWord = GenerateNewWord(GetFirstName());
+                var newWord = GenerateNewWord(GetRandomWord());
 
                 if (!_words.Where(x => x.Y < 20 && x.X > newWord.X && x.X < newWord.X + 50).Any())
                 {
@@ -144,6 +144,28 @@ namespace MinSida.Services.Games
         public string GetVehicleModel()
         {
             return _faker.Vehicle.Model();
+        }
+
+        public string GetRandomWord()
+        {
+            var randomNumber = Random.Next(1, 10);
+            switch (randomNumber)
+            {
+                case 1:
+                    return GetLoremWord();
+                case 2:
+                    return GetFirstName();
+                case 3:
+                    return GetLastName();
+                case 4:
+                    return GetMusicGenre();
+                case 5:
+                    return GetVehicleManufacturer();
+                case 6:
+                    return GetVehicleModel();
+                default:
+                    return GetLoremWord();
+            }
         }
 
 
@@ -208,7 +230,7 @@ namespace MinSida.Services.Games
         {
             Word = word;
             X = x;
-            Y = 15;
+            Y = 0;
         }
 
         public string Word { get; set; }
