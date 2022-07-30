@@ -24,6 +24,8 @@ namespace MinSida.Services.Games
         public int Score { get; set; } = 0;
         public int Lives { get; set; } = 3;
         public int Highscore { get; set; }
+        public int Speedup = 0;
+        public bool GameRunning = false;
         
         public List<GameWord> _words;
         public Stopwatch _stopwatch;
@@ -46,7 +48,7 @@ namespace MinSida.Services.Games
         }
         
         //Start game with 10 random words using linq
-        public async Task StartGameAsync()
+        public void StartGame()
         {
             Score = 0;
             Lives = 3;
@@ -54,19 +56,23 @@ namespace MinSida.Services.Games
             _words.Clear();
             _stopwatch.Reset();
             _stopwatch.Start();
-            StopGame = true;
-            await Task.Delay(100);
-            StopGame = false;
+            GameRunning = true;
             GameLoop();
         }
 
+        // Stop game
+        public void StopGame()
+        {
+            GameRunning = false;
+        }
+
         long lastGameLoopMilliseconds = 0;
-        bool StopGame = false;
 
         async void GameLoop()
         {
-            if (Lives < 1 || StopGame)
+            if (Lives < 1 || !GameRunning)
             {
+                GameRunning = false;
                 _words.Clear();
                 if (Score > Highscore)
                 {
@@ -86,8 +92,8 @@ namespace MinSida.Services.Games
                 }
             }
 
-            var randomNumber = Random.Next(1, 200);
-            if (_words.Count < 10 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
+            var randomNumber = Random.Next(1, 300);
+            if (_words.Count < Speedup + 1 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
             {
                 var word = GetRandomWord().ToLower();
                 var newWord = GenerateNewWord(word.Substring(0, word.IndexOf(' ') != -1 ? word.IndexOf(' ') : word.Length).Trim());
@@ -99,8 +105,8 @@ namespace MinSida.Services.Games
             }
 
             var currentSeconds = (int)_stopwatch.ElapsedMilliseconds / 1000;
-            var speedup = currentSeconds / 10;
-            int delay = (100 - speedup) - (int)(_stopwatch.ElapsedMilliseconds - lastGameLoopMilliseconds);
+            Speedup = currentSeconds / 10;
+            int delay = (100 - Speedup) - (int)(_stopwatch.ElapsedMilliseconds - lastGameLoopMilliseconds);
             await Task.Delay(delay < 0 ? 0 : delay);
             lastGameLoopMilliseconds = _stopwatch.ElapsedMilliseconds;
             GameLoop();
@@ -110,11 +116,23 @@ namespace MinSida.Services.Games
         {
             return new GameWord(word, Random.Next(1, GameWidth - 50));
         }
-
+        
         public void SetSeed(int seed)
         {
             Random = new Random(seed);
             Randomizer.Seed = Random;
+        }
+        
+        public void SetSeed(object? seed)
+        {
+            if (seed is int seedInt)
+            {
+                SetSeed(seedInt);
+            }
+            else
+            {
+                SetSeed(0);
+            }
         }
 
         public string GetLoremWord()

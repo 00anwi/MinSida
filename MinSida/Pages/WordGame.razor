@@ -4,41 +4,55 @@
 
     <PageTitle>Word game</PageTitle>
 
-<div @onkeyup="ProcessGameInput">
-    <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">Word Locale</span>
-        <select class="form-select" @bind="_game.Locale">
-            @foreach (var localeOption in WordGameService.LanguageCodes.OrderBy(x => x.Value))
+    <div  @onkeyup="ProcessGameInput">
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Word Locale</span>
+            <select class="form-select" @bind="_game.Locale">
+                @foreach (var localeOption in WordGameService.LanguageCodes.OrderBy(x => x.Value))
+                {
+                    <option value="@localeOption.Key">@localeOption.Value</option>
+                }
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Seed</span>
+            <input class="form-control" type="number" @onchange="(ChangeEventArgs args) => _game.SetSeed(args.Value)" />
+        </div>
+
+        @* Start game button with bootstrap *@
+        @if (_game.GameRunning)
+        {
+            <button @ref="gameFocus" type="button" class="btn btn-primary" @onclick="_game.StopGame">Stop Game</button>
+        }
+        else
+        {
+            <button @ref="gameFocus" type="button" class="btn btn-primary" @onclick="_game.StartGame">Start Game</button>
+        }
+
+        <h3>Highscore: @_game.Highscore</h3>
+        <h3>Score: @_game.Score</h3>
+        <h3>Level: @_game.Speedup</h3>
+        <h3>
+            @for (int i = 0; i < _game.Lives; i++)
             {
-                <option value="@localeOption.Key">@localeOption.Value</option>
+                <span class="oi oi-heart" aria-hidden="true"></span>
             }
-        </select>
+        </h3>
+
+        @* Game canvas *@
+        <div class="game-canvas" style="position: relative; width: @(_game.GameWidth)px; height: @(_game.GameHeight)px;">
+
+            @foreach (var word in _game._words)
+            {
+                <p class="word" style="position:absolute; left: @(word.X)px; top: @(word.Y)px;"><b style="color: lightgreen;">@word.Word.Substring(0, word.CurrentChars.Length)</b>@word.Word.Substring(word.CurrentChars.Length, word.Word.Length - word.CurrentChars.Length)</p>
+            }
+        </div>
+        <hr />
     </div>
-
-    @* Start game button with bootstrap *@
-    <button type="button" class="btn btn-primary" @onclick="_game.StartGameAsync">Start Game</button>
-    <h3>Highscore: @_game.Highscore</h3>
-    <h3>Score: @_game.Score</h3>
-    <h3>
-        @for (int i = 0; i < _game.Lives; i++)
-        {
-            <span class="oi oi-heart" aria-hidden="true"></span>
-        }
-    </h3>
-
-    @* Game canvas *@
-    <div class="game-canvas" style="position: relative; width: @(_game.GameWidth)px; height: @(_game.GameHeight)px; border: double; overflow: hidden;">
-
-        @foreach (var word in _game._words)
-        {
-            <p class="word" style="position:absolute; left: @(word.X)px; top: @(word.Y)px;"><b style="color: lightgreen;">@word.Word.Substring(0, word.CurrentChars.Length)</b>@word.Word.Substring(word.CurrentChars.Length, word.Word.Length - word.CurrentChars.Length)</p>
-        }
-    </div>
-</div>
 
 
 @code{
-
+    ElementReference gameFocus;
     Timer timer;
 
     protected override void OnAfterRender(bool firstRender)
@@ -47,6 +61,11 @@
         {
             timer = new System.Threading.Timer(async _ =>
             {
+                if (_game.GameRunning)
+                {
+                   await gameFocus.FocusAsync();
+                }
+
                 await InvokeAsync(StateHasChanged);
             }, null, 0, 16);
         }
@@ -55,7 +74,7 @@
 
     void ProcessGameInput(KeyboardEventArgs args)
     {
-        if (args.Key.Length > 1)
+        if (args.Key.Length > 1 || !_game.GameRunning)
         {
             return;
         }
@@ -77,19 +96,6 @@
                 }
             }
         }
-
-        //foreach (var word in _game._words)
-        //{
-        //    if (word.Word[word.CurrentChars.Length] == Convert.ToChar(args.Key))
-        //    {
-        //        word.CurrentChars += args.Key;
-        //        charCorrect = true;
-        //        if (word.Word == word.CurrentChars)
-        //        {
-        //            wordToRemove.Add(word);
-        //        }
-        //    }
-        //}
 
         if (!charCorrect)
         {
