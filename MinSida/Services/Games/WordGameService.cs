@@ -86,7 +86,7 @@ namespace MinSida.Services.Games
                 }
             }
 
-            var randomNumber = Random.Next(1, 100);
+            var randomNumber = Random.Next(1, 200);
             if (_words.Count < 10 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
             {
                 var word = GetRandomWord().ToLower();
@@ -100,7 +100,7 @@ namespace MinSida.Services.Games
 
             var currentSeconds = (int)_stopwatch.ElapsedMilliseconds / 1000;
             var speedup = currentSeconds / 10;
-            int delay = (42 - speedup) - (int)(_stopwatch.ElapsedMilliseconds - lastGameLoopMilliseconds);
+            int delay = (100 - speedup) - (int)(_stopwatch.ElapsedMilliseconds - lastGameLoopMilliseconds);
             await Task.Delay(delay < 0 ? 0 : delay);
             lastGameLoopMilliseconds = _stopwatch.ElapsedMilliseconds;
             GameLoop();
