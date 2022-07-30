@@ -1,5 +1,29 @@
 ﻿@page "/"
 
+@using Microsoft.AspNetCore.WebUtilities
+@using MinSida.Extensions
+@inject NavigationManager NavManager
+
 <PageTitle>Home</PageTitle>
 
 
+@code{
+    public string? redirectURL = "";
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            GetURL();
+            if (!String.IsNullOrEmpty(redirectURL))
+            {
+                NavManager.NavigateTo(redirectURL);
+            }
+        }
+    }
+
+    void GetURL()
+    {
+        redirectURL = NavManager.QueryString("redirectURL");
+    }
+}
