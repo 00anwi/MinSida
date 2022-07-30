@@ -89,9 +89,9 @@ namespace MinSida.Services.Games
             var randomNumber = Random.Next(1, 100);
             if (_words.Count < 10 && (randomNumber < (Score < 0 ? 1 : Score) || _words.Count < 2))
             {
-                var newWord = GenerateNewWord(GetRandomWord());
+                var newWord = GenerateNewWord(GetRandomWord().ToLower());
 
-                if (!_words.Where(x => x.Y < 20 && x.X > newWord.X && x.X < newWord.X + 50).Any())
+                if (!_words.Where(x => x.Y < 20 && x.X > newWord.X - 50 && x.X < newWord.X + 50).Any())
                 {
                     _words.Add(newWord);
                 }
@@ -123,12 +123,12 @@ namespace MinSida.Services.Games
 
         public string GetFirstName()
         {
-            return _faker.Name.FirstName().ToLower();
+            return _faker.Name.FirstName();
         }
 
         public string GetLastName()
         {
-            return _faker.Name.LastName().ToLower();
+            return _faker.Name.LastName();
         }
 
         public string GetMusicGenre()
