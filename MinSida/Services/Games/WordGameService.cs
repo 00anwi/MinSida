@@ -18,8 +18,8 @@ namespace MinSida.Services.Games
             } 
         }
 
-        public int GameWidth = 800;
-        public int GameHeight = 600;
+        public int GameWidth = 600;
+        public int GameHeight = 500;
 
         public int Score { get; set; } = 0;
         public int Lives { get; set; } = 3;
@@ -47,7 +47,7 @@ namespace MinSida.Services.Games
             Highscore = await _localStorage.GetItemAsync<int>(nameof(Highscore));
         }
         
-        //Start game with 10 random words using linq
+
         public void StartGame()
         {
             Score = 0;
@@ -60,7 +60,7 @@ namespace MinSida.Services.Games
             GameLoop();
         }
 
-        // Stop game
+
         public void StopGame()
         {
             GameRunning = false;
